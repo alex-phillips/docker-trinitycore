@@ -1,0 +1,41 @@
+version: '3'
+services:
+  singlecore_tc-server:
+    container_name: singlecore_tc-server
+    image: alexphillips/singlecore_tc
+    depends_on:
+      - singlecore_tc-db
+    environment:
+      TZ: America/New_York
+      PUID: ${PUID}
+      PGID: ${PGID}
+    volumes:
+      # - ${HOME}/tmp/singlecore_tc/data:/data:ro
+      # - ${HOME}/Games/wow335a:/game
+    ports:
+      - 3724:3724
+      - 8085:8085
+
+  singlecore_tc-db:
+    container_name: singlecore_tc-db
+    image: linuxserver/mariadb
+    volumes:
+      - ${HOME}/tmp/singlecore_tc/db:/config
+    ports:
+      - 3306:3306
+    environment:
+      PGID: ${PUID}
+      PUID: ${PGID}
+      TZ: America/New_York
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: trinity
+      MYSQL_PASSWORD: trinity
+
+  # singlecore_tc-phpmyadmin:
+  #   container_name: singlecore_tc-phpmyadmin
+  #   image: phpmyadmin/phpmyadmin
+  #   links:
+  #     - singlecore_tc-db:db
+  #   environment:
+  #     - PMA_USER=trinity
+  #     - PMA_PASSWORD=trinity

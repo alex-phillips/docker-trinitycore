@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+
+_term() {
+  echo "Caught SIGTERM signal!"
+  killall -TERM rtorrent 2>/dev/null
+}
+
+trap _term SIGTERM
+
+cd /app/server/bin && \
+screen -D -m -S \
+    worldserver s6-setuidgid abc ./worldserver
+
+wait

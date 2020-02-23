@@ -1,0 +1,82 @@
+#!/usr/bin/with-contenv bash
+
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+DB_HOST=${DB_HOST:-singlecore_tc-db}
+DB_PORT=$DB_PORT:-3306}
+DB_USER=$DB_USER:-trinity}
+DB_PASS=$DB_PASS:-trinity}
+DB_ROOT_USER=${DB_ROOT_USER:-root}
+DB_ROOT_PASS=${DB_ROOT_PASS:-root}
+
+echo "**** waiting for DB - sleeping for 10 seconds ****"
+sleep 10
+
+echo "**** updating SingleCore_TC source ****"
+cd /singlecore_tc
+git pull
+
+cd /app/server
+
+mkdir -p /data
+
+# extract and copy over dbc and map files
+if [ ! -d "/data/dbc" ]; then
+	echo "**** DBC and map files not found - extracting ****"
+	cd /game
+	/app/server/bin/mapextractor
+	cp -r dbc maps /data/
+fi
+
+if [ ! -d "/data/vmaps" ]; then
+	echo "**** visual maps (vmaps) not found - extracting ****"
+	cd /game
+	/app/server/bin/vmap4extractor
+	mkdir -p vmaps
+	/app/server/bin/vmap4assembler Buildings vmaps
+	cp -r vmaps /data/
+fi
+
+if [ ! -d "/data/mmaps" ]; then
+	echo "**** mmaps not found - extracting: THIS COULD TAKE A WHILE ****"
+	cd /game
+	mkdir mmaps
+	/app/server/bin/mmaps_generator
+	cp -r mmaps /data/
+fi
+
+if [ ! -f "/app/server/etc/worldserver.conf" ]; then
+	cp /app/server/etc/worldserver.conf.dist /app/server/etc/worldserver.conf
+	# Set DataDir to the proper location
+	sed -i 's|DataDir = "."|DataDir = "/data"|g' /app/server/etc/worldserver.conf
+
+	# Fix database connection info
+	sed -i 's|127.0.0.1;3306;trinity;trinity|singlecore_tc-db;3306;trinity;trinity|g' /app/server/etc/worldserver.conf
+fi
+
+if [ ! -f "/app/server/etc/authserver.conf" ]; then
+	cp /app/server/etc/authserver.conf.dist /app/server/etc/authserver.conf
+
+	# Fix database connection info
+	sed -i 's|127.0.0.1;3306;trinity;trinity|singlecore_tc-db;3306;trinity;trinity|g' /app/server/etc/authserver.conf
+fi
+
+# Initial setup required for database
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db < /defaults/db_setup.sql
+
+# Move any TDB seed files into the bin directory for seeding
+cp /data/TDB_*sql /app/server/bin/
+
+# Update the database
+cd /app/server/bin && ./worldserver --update-databases-only
+
+# Seed DB with bot files
+cd /singlecore_tc/sql/Bots
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 1_world_bot_appearance.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 2_world_bot_extras.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 3_world_bots.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 4_world_generate_bot_equips.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db characters < characters_bots.sql
+
+# permissions
+# chown -R abc:abc \
+	# /app/server
