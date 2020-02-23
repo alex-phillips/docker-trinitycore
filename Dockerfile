@@ -43,6 +43,11 @@ RUN \
  git clone --branch 3.3.5 https://github.com/TrinityCore/TrinityCore /trinitycore && \
  cd /trinitycore && \
  git checkout e0835b4673 && \
+ git clone https://github.com/ElunaLuaEngine/ElunaTrinityWotlk.git && \
+ cd ElunaTrinityWotlk && \
+ git submodule init && \
+ git submodule update && \
+ cd /trinitycore && \
  mkdir build && \
  cd build && \
  cmake ../ -DCMAKE_INSTALL_PREFIX=/app/server && \
