@@ -30,7 +30,10 @@ ARG RUNTIME_PACKAGES="\
 	mariadb-client \
 	screen"
 
+COPY addons /tmp/
+
 RUN \
+ ls -altr /tmp/ && \
  apt update && \
  echo "**** install build packages ****" && \
  apt-get install -y \
@@ -39,14 +42,25 @@ RUN \
  apt-get install -y \
  	--no-install-recommends \
 	$RUNTIME_PACKAGES && \
- echo "**** clone singlecore ****" && \
+ echo "**** clone TrinityCore ****" && \
  git clone --branch 3.3.5 https://github.com/TrinityCore/TrinityCore /trinitycore && \
  cd /trinitycore && \
  git checkout e0835b4673 && \
+ echo "**** installing Eluna ****" && \
  git clone https://github.com/ElunaLuaEngine/ElunaTrinityWotlk.git && \
  cd ElunaTrinityWotlk && \
  git submodule init && \
  git submodule update && \
+ echo "**** installing Solocraft ****" && \
+ cd /trinitycore/src/server/scripts/Custom && \
+ mv /tmp/Solocraft.cpp . && \
+ patch -p1 custom_script_loader.cpp < /tmp/solocraft.patch && \
+ echo "**** installing npcbots ****" && \
+ git clone https://bitbucket.org/trickerer/trinity-bots.git /trinity-bots && \
+ mv /trinity-bots/last/NPCBots.patch /trinitycore && \
+ cd /trinitycore && \
+ patch -p1 < NPCBots.patch && \
+ echo "**** building core ****" && \
  cd /trinitycore && \
  mkdir build && \
  cd build && \
