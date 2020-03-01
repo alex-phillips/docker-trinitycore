@@ -2,14 +2,15 @@
 
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
 DB_HOST=${DB_HOST:-trinitycore-db}
-DB_PORT=$DB_PORT:-3306}
-DB_USER=$DB_USER:-trinity}
-DB_PASS=$DB_PASS:-trinity}
+DB_PORT=${DB_PORT:-3306}
+DB_USER=${DB_USER:-trinity}
+DB_PASS=${DB_PASS:-trinity}
 DB_ROOT_USER=${DB_ROOT_USER:-root}
 DB_ROOT_PASS=${DB_ROOT_PASS:-root}
 DB_TIMEOUT=${DB_TIMEOUT:-30}
 
 dbcmd="mysql -h ${DB_HOST} -P ${DB_PORT} -u "${DB_USER}" "-p${DB_PASS}""
+echo $dbcmd
 echo "Waiting ${DB_TIMEOUT}s for database to be ready..."
 counter=1
 while ! ${dbcmd} -e "show databases;" > /dev/null 2>&1; do
