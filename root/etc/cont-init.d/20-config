@@ -1,21 +1,26 @@
 #!/usr/bin/with-contenv bash
 
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
-DB_HOST=${DB_HOST:-singlecore_tc-db}
+DB_HOST=${DB_HOST:-trinitycore-db}
 DB_PORT=$DB_PORT:-3306}
 DB_USER=$DB_USER:-trinity}
 DB_PASS=$DB_PASS:-trinity}
 DB_ROOT_USER=${DB_ROOT_USER:-root}
 DB_ROOT_PASS=${DB_ROOT_PASS:-root}
+DB_TIMEOUT=${DB_TIMEOUT:-30}
 
-echo "**** waiting for DB - sleeping for 10 seconds ****"
-sleep 10
-
-echo "**** updating SingleCore_TC source ****"
-cd /singlecore_tc
-git pull
-
-cd /app/server
+dbcmd="mysql -h ${DB_HOST} -P ${DB_PORT} -u "${DB_USER}" "-p${DB_PASS}""
+echo "Waiting ${DB_TIMEOUT}s for database to be ready..."
+counter=1
+while ! ${dbcmd} -e "show databases;" > /dev/null 2>&1; do
+  sleep 1
+  counter=$((counter + 1))
+  if [ ${counter} -gt ${DB_TIMEOUT} ]; then
+    >&2 echo "ERROR: Failed to connect to database on $DB_HOST"
+    exit 1
+  fi;
+done
+echo "Database ready!"
 
 mkdir -p /data
 
@@ -45,23 +50,26 @@ if [ ! -d "/data/mmaps" ]; then
 fi
 
 if [ ! -f "/app/server/etc/worldserver.conf" ]; then
+        # Add in solocraft config
+        cat /defaults/solocraft.conf >> /app/server/etc/worldserver.conf.dist
+
 	cp /app/server/etc/worldserver.conf.dist /app/server/etc/worldserver.conf
 	# Set DataDir to the proper location
 	sed -i 's|DataDir = "."|DataDir = "/data"|g' /app/server/etc/worldserver.conf
 
 	# Fix database connection info
-	sed -i 's|127.0.0.1;3306;trinity;trinity|singlecore_tc-db;3306;trinity;trinity|g' /app/server/etc/worldserver.conf
+	sed -i 's|127.0.0.1;3306;trinity;trinity|trinitycore-db;3306;trinity;trinity|g' /app/server/etc/worldserver.conf
 fi
 
 if [ ! -f "/app/server/etc/authserver.conf" ]; then
 	cp /app/server/etc/authserver.conf.dist /app/server/etc/authserver.conf
 
 	# Fix database connection info
-	sed -i 's|127.0.0.1;3306;trinity;trinity|singlecore_tc-db;3306;trinity;trinity|g' /app/server/etc/authserver.conf
+	sed -i 's|127.0.0.1;3306;trinity;trinity|trinitycore-db;3306;trinity;trinity|g' /app/server/etc/authserver.conf
 fi
 
 # Initial setup required for database
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db < /defaults/db_setup.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db < /defaults/db_setup.sql
 
 # Move any TDB seed files into the bin directory for seeding
 cp /data/TDB_*sql /app/server/bin/
@@ -70,12 +78,11 @@ cp /data/TDB_*sql /app/server/bin/
 cd /app/server/bin && ./worldserver --update-databases-only
 
 # Seed DB with bot files
-cd /singlecore_tc/sql/Bots
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 1_world_bot_appearance.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 2_world_bot_extras.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 3_world_bots.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db world < 4_world_generate_bot_equips.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host singlecore_tc-db characters < characters_bots.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/1_world_bot_appearance.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/2_world_bot_extras.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/3_world_bots.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/4_world_generate_bot_equips.sql
+mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db characters < /trinity-bots/last/SQL/characters_bots.sql
 
 # permissions
 # chown -R abc:abc \
