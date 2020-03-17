@@ -46,6 +46,7 @@ RUN \
  git clone --branch 3.3.5 https://github.com/TrinityCore/TrinityCore /trinitycore && \
  cd /trinitycore && \
  git checkout c73037322e && \
+ rm -rf .git && \
  echo "**** installing Eluna ****" && \
  git clone https://github.com/ElunaLuaEngine/ElunaTrinityWotlk.git && \
  cd ElunaTrinityWotlk && \
