@@ -79,11 +79,16 @@ cp /data/TDB_*sql /app/server/bin/
 cd /app/server/bin && ./worldserver --update-databases-only
 
 # Seed DB with bot files
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/1_world_bot_appearance.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/2_world_bot_extras.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/3_world_bots.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db world < /trinity-bots/last/SQL/4_world_generate_bot_equips.sql
-mysql -u root -p${MYSQL_ROOT_PASSWORD} --host trinitycore-db characters < /trinity-bots/last/SQL/characters_bots.sql
+find /trinity-bots/last/SQL -maxdepth 1 -type f -name "*world*" | sort
+find /trinity-bots/last/SQL -maxdepth 1 -type f -name "*world*" | sort | xargs cat | mysql --host trinitycore-db -u root -p${MYSQL_ROOT_PASSWORD} world
+find /trinity-bots/last/SQL -maxdepth 1 -type f -name "*characters*" | sort
+find /trinity-bots/last/SQL -maxdepth 1 -type f -name "*characters*" | sort | xargs cat | mysql --host trinitycore-db -u root -p${MYSQL_ROOT_PASSWORD} characters
+
+# Run bot update SQL files
+find /trinity-bots/last/SQL/updates/characters -type f | sort
+find /trinity-bots/last/SQL/updates/characters -type f | sort | xargs cat | mysql --host trinitycore-db -u root -p${MYSQL_ROOT_PASSWORD} characters
+find /trinity-bots/last/SQL/updates/world -type f | sort
+find /trinity-bots/last/SQL/updates/world -type f | sort | xargs cat | mysql --host trinitycore-db -u root -p${MYSQL_ROOT_PASSWORD} world
 
 # permissions
 # chown -R abc:abc \
