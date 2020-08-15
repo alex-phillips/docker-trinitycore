@@ -16,7 +16,8 @@ ARG BUILD_PACKAGES="\
 	libncurses-dev \
 	libbz2-dev \
 	libssl-dev \
-	make"
+	make \
+        patch"
 
 # packages as variables
 ARG RUNTIME_PACKAGES="\
