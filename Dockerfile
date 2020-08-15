@@ -25,15 +25,15 @@ ARG RUNTIME_PACKAGES="\
 	libboost-program-options-dev \
 	libboost-system-dev \
 	libboost-thread-dev \
-	libmariadbclient-dev \
+	libmysqlclient-dev \
 	libreadline-dev \
-	mariadb-client \
+	mysql-client \
+        openssl \
 	screen"
 
 COPY addons /tmp/
 
 RUN \
- ls -altr /tmp/ && \
  apt update && \
  echo "**** install build packages ****" && \
  apt-get install -y \
@@ -45,8 +45,7 @@ RUN \
  echo "**** clone TrinityCore ****" && \
  git clone --branch 3.3.5 https://github.com/TrinityCore/TrinityCore /trinitycore && \
  cd /trinitycore && \
- git checkout c73037322e && \
- rm -rf .git && \
+ git reset --hard 3227ed94bc && \
  echo "**** installing Eluna ****" && \
  git clone https://github.com/ElunaLuaEngine/ElunaTrinityWotlk.git && \
  cd ElunaTrinityWotlk && \
@@ -57,7 +56,7 @@ RUN \
  mv /tmp/Solocraft.cpp . && \
  patch -p1 custom_script_loader.cpp < /tmp/solocraft.patch && \
  echo "**** installing npcbots ****" && \
- git clone https://bitbucket.org/trickerer/trinity-bots.git /trinity-bots && \
+ git clone --depth 1 https://github.com/trickerer/Trinity-Bots /trinity-bots && \
  mv /trinity-bots/last/NPCBots.patch /trinitycore && \
  cd /trinitycore && \
  patch -p1 < NPCBots.patch && \
@@ -68,6 +67,7 @@ RUN \
  cmake ../ -DCMAKE_INSTALL_PREFIX=/app/server && \
  make -j $(nproc) install && \
  echo "**** cleanup ****" && \
+ rm -rf /trinitycore/.git && \
  rm -rf /trinitycore/build
 #  apt-get purge -y --auto-remove \
 # 	$BUILD_PACKAGES && \
