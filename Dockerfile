@@ -1,4 +1,4 @@
-FROM lsiobase/ubuntu:bionic
+FROM lsiobase/ubuntu:focal
 
 # set version label
 ARG BUILD_DATE
@@ -25,9 +25,9 @@ ARG RUNTIME_PACKAGES="\
 	libboost-program-options-dev \
 	libboost-system-dev \
 	libboost-thread-dev \
-	libmysqlclient-dev \
+	libmariadbclient-dev \
 	libreadline-dev \
-	mysql-client \
+	mariadb-client \
         openssl \
 	screen"
 
