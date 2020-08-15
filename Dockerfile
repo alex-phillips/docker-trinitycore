@@ -26,6 +26,7 @@ ARG RUNTIME_PACKAGES="\
 	libboost-program-options-dev \
 	libboost-system-dev \
 	libboost-thread-dev \
+        libmariadb-client-lgpl-dev-compat \
 	libmariadbclient-dev \
 	libreadline-dev \
 	mariadb-client \
