@@ -3,7 +3,6 @@ FROM lsiobase/ubuntu:bionic
 # set version label
 ARG BUILD_DATE
 ARG VERSION
-ARG SNIBOX_VERSION
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="alex-phillips"
 
