@@ -1,15 +1,16 @@
---- custom_script_loader.cpp.orig       2020-02-23 19:38:56.801146064 -0500
-+++ custom_script_loader.cpp.vas        2020-02-23 19:41:19.083828775 -0500
-@@ -16,10 +16,11 @@
-  */
- 
- // This is where scripts' loading functions should be declared:
--
-+void AddSC_VAS_AutoBalance();
- 
- // The name of this function should match:
- // void Add${NameOfDirectory}Scripts()
- void AddCustomScripts()
- {
+*** custom_script_loader.cpp    2021-01-23 20:52:16.478510735 +0000
+--- custom_script_loader.cpp.patched    2021-01-23 20:55:59.055167411 +0000
+***************
+*** 16,24 ****
+--- 16,26 ----
+   */
+
+  // This is where scripts' loading functions should be declared:
++ void AddSC_VAS_AutoBalance();
+
+  // The name of this function should match:
+  // void Add${NameOfDirectory}Scripts()
+  void AddCustomScripts()
+  {
 +       AddSC_VAS_AutoBalance();
- }
+  }

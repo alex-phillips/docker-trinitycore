@@ -16,7 +16,7 @@ ARG BUILD_PACKAGES="\
 	libbz2-dev \
 	libssl-dev \
 	make \
-        patch"
+	patch"
 
 # packages as variables
 ARG RUNTIME_PACKAGES="\
@@ -25,11 +25,11 @@ ARG RUNTIME_PACKAGES="\
 	libboost-program-options-dev \
 	libboost-system-dev \
 	libboost-thread-dev \
-        libmariadb-client-lgpl-dev-compat \
+	libmariadb-client-lgpl-dev-compat \
 	libmariadbclient-dev \
 	libreadline-dev \
 	mariadb-client \
-        openssl \
+	openssl \
 	screen"
 
 COPY addons /tmp/
@@ -46,7 +46,7 @@ RUN \
  echo "**** clone TrinityCore ****" && \
  git clone --branch 3.3.5 https://github.com/TrinityCore/TrinityCore /trinitycore && \
  cd /trinitycore && \
- git reset --hard 3227ed94bc && \
+ git reset --hard 4c0a8ad3b3 && \
  echo "**** installing Eluna ****" && \
  git clone https://github.com/ElunaLuaEngine/ElunaTrinityWotlk.git && \
  cd ElunaTrinityWotlk && \
